@@ -26,12 +26,12 @@ CREATE TABLE Endereco(
 /* TABELA CLIENTE */
 CREATE TABLE Cliente(
     CPF_Cliente VARCHAR(11) CONSTRAINT pk_cli PRIMARY KEY,
-    Endereco_CEP VARCHAR(9) NOT NULL,
+    CEP VARCHAR(9) NOT NULL,
     Idade INT CHECK (Idade >= 0),
     Nome CHAR(50) NOT NULL,
-    Numero_endereco VARCHAR(10),
+    Num_endereco VARCHAR(10),
     indicador VARCHAR(11),
-    CONSTRAINT fk_cepC FOREIGN KEY (Endereco_CEP) REFERENCES Endereco(CEP) ON DELETE CASCADE,
+    CONSTRAINT fk_cepC FOREIGN KEY (CEP) REFERENCES Endereco(CEP) ON DELETE CASCADE,
     CONSTRAINT fk_auto FOREIGN KEY (indicador) REFERENCES Cliente(CPF_Cliente)
 );
 
@@ -42,10 +42,10 @@ INCREMENT BY 1;
 
 CREATE TABLE Hotel(
     Id_Hotel INT CONSTRAINT pk_hot PRIMARY KEY,
-    End_CEP VARCHAR(9) NOT NULL,
+    CEP VARCHAR(9) NOT NULL,
     Num_quartos INT CHECK (Num_quartos > 0),
     Num_endereco VARCHAR(10),
-    CONSTRAINT fk_cepH FOREIGN KEY (End_CEP) REFERENCES Endereco(CEP) ON DELETE CASCADE
+    CONSTRAINT fk_cepH FOREIGN KEY (CEP) REFERENCES Endereco(CEP) ON DELETE CASCADE
 );
 
 
@@ -66,13 +66,13 @@ INCREMENT BY 1;
 
 CREATE TABLE Reserva(
     Id_Hotel INT,
-    Id_Da_Reserva INT,
+    Id_Reserva INT,
     Quarto VARCHAR(10) NOT NULL,
     Check_In DATE NOT NULL,
     Check_Out DATE NOT NULL,
     CONSTRAINT fk_rsv1 FOREIGN KEY (Quarto, Id_Hotel) REFERENCES QuartoPreco(Quarto, Id_Hotel) ON DELETE CASCADE,
     CONSTRAINT fk_rsv2 FOREIGN KEY (Id_Hotel) REFERENCES Hotel(Id_Hotel) ON DELETE CASCADE,
-    CONSTRAINT pk_rsv PRIMARY KEY(Id_Hotel, Id_Da_Reserva)
+    CONSTRAINT pk_rsv PRIMARY KEY(Id_Hotel, Id_Reserva)
 );
 
 /* TABELA FUNCIONARIOS */
@@ -86,8 +86,8 @@ CREATE TABLE Funcionarios(
 /* TABELA TELEFONE */
 CREATE TABLE Telefone (
     CPF_Funcionario VARCHAR(11),
-    Numero_Telefone VARCHAR(20),
-    PRIMARY KEY (CPF_Funcionario, Numero_Telefone),
+    Num_Telefone VARCHAR(20),
+    PRIMARY KEY (CPF_Funcionario, Num_Telefone),
     CONSTRAINT fk_cpfF FOREIGN KEY (CPF_Funcionario) REFERENCES Funcionarios (CPF_Funcionario) ON DELETE CASCADE
 );
 
@@ -118,11 +118,11 @@ CREATE TABLE Se_Hospeda(
 CREATE TABLE Conduz(
     CPF_Cliente VARCHAR(11),
     Id_Hotel INT,
-    Data_embarque TIMESTAMP,
+    Data_Hora TIMESTAMP,
     Ponto_Embarque VARCHAR(100),
     Ponto_Desembarque VARCHAR(100),
     CPF_Funcionario VARCHAR(11),
-    CONSTRAINT pk_c PRIMARY KEY(CPF_Cliente, Data_embarque),
+    CONSTRAINT pk_c PRIMARY KEY(CPF_Cliente, Id_Hotel, Data_Hora),
     CONSTRAINT fk_c1 FOREIGN KEY (CPF_Cliente, Id_Hotel) REFERENCES Se_Hospeda(CPF_Cliente, Id_Hotel) ON DELETE CASCADE,
     CONSTRAINT fk_c2 FOREIGN KEY (CPF_Funcionario) REFERENCES Motorista(CPF_Funcionario) ON DELETE CASCADE
 );
@@ -133,7 +133,7 @@ CREATE TABLE Leva(
     CPF_Cliente VARCHAR(11),
     Data_Hora TIMESTAMP,
     CPF_Funcionario VARCHAR(11),
-    CONSTRAINT pk_l PRIMARY KEY(CPF_Cliente, Data_Hora),
+    CONSTRAINT pk_l PRIMARY KEY(ID_Atracao, CPF_Cliente, Data_Hora),
     CONSTRAINT fk_l1 FOREIGN KEY (ID_Atracao) REFERENCES Atracao(ID_Atracao) ON DELETE CASCADE,
     CONSTRAINT fk_l2 FOREIGN KEY (CPF_Cliente) REFERENCES Cliente(CPF_Cliente) ON DELETE CASCADE,
     CONSTRAINT fk_l3 FOREIGN KEY (CPF_Funcionario) REFERENCES Motorista(CPF_Funcionario) ON DELETE CASCADE
@@ -143,10 +143,10 @@ CREATE TABLE Leva(
 CREATE TABLE Efetua(
     CPF_Cliente VARCHAR(11),
     Id_Hotel INT,
-    Id_Da_Reserva INT,
+    Id_Reserva INT,
     CPF_Funcionario VARCHAR(11),
-    CONSTRAINT pk_ef PRIMARY KEY(CPF_Cliente, Id_Hotel, Id_Da_Reserva),
+    CONSTRAINT pk_ef PRIMARY KEY(CPF_Cliente, Id_Hotel, Id_Reserva),
     CONSTRAINT fk_ef1 FOREIGN KEY (CPF_Cliente) REFERENCES Cliente(CPF_Cliente) ON DELETE CASCADE,
-    CONSTRAINT fk_ef2 FOREIGN KEY (Id_Hotel, Id_Da_Reserva) REFERENCES Reserva(Id_Hotel, Id_Da_Reserva) ON DELETE CASCADE,
+    CONSTRAINT fk_ef2 FOREIGN KEY (Id_Hotel, Id_Reserva) REFERENCES Reserva(Id_Hotel, Id_Reserva) ON DELETE CASCADE,
     CONSTRAINT fk_ef3 FOREIGN KEY (CPF_Funcionario) REFERENCES Agente(CPF_Funcionario) ON DELETE CASCADE
 );
