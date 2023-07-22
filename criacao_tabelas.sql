@@ -50,7 +50,6 @@ CREATE TABLE Hotel(
 
 
 /* TABELA QUARTOPRECO */
-DROP TABLE QuartoPreco;
 CREATE TABLE QuartoPreco(
     Quarto VARCHAR(10),
     Id_Hotel INT,
@@ -122,7 +121,7 @@ CREATE TABLE Conduz(
     Ponto_Embarque VARCHAR(100),
     Ponto_Desembarque VARCHAR(100),
     CPF_Funcionario VARCHAR(11),
-    CONSTRAINT pk_c PRIMARY KEY(CPF_Cliente, Id_Hotel, Data_Hora),
+    CONSTRAINT pk_c PRIMARY KEY(CPF_Cliente, Data_Hora),
     CONSTRAINT fk_c1 FOREIGN KEY (CPF_Cliente, Id_Hotel) REFERENCES Se_Hospeda(CPF_Cliente, Id_Hotel) ON DELETE CASCADE,
     CONSTRAINT fk_c2 FOREIGN KEY (CPF_Funcionario) REFERENCES Motorista(CPF_Funcionario) ON DELETE CASCADE
 );
@@ -133,7 +132,7 @@ CREATE TABLE Leva(
     CPF_Cliente VARCHAR(11),
     Data_Hora TIMESTAMP,
     CPF_Funcionario VARCHAR(11),
-    CONSTRAINT pk_l PRIMARY KEY(ID_Atracao, CPF_Cliente, Data_Hora),
+    CONSTRAINT pk_l PRIMARY KEY(CPF_Cliente, Data_Hora),
     CONSTRAINT fk_l1 FOREIGN KEY (ID_Atracao) REFERENCES Atracao(ID_Atracao) ON DELETE CASCADE,
     CONSTRAINT fk_l2 FOREIGN KEY (CPF_Cliente) REFERENCES Cliente(CPF_Cliente) ON DELETE CASCADE,
     CONSTRAINT fk_l3 FOREIGN KEY (CPF_Funcionario) REFERENCES Motorista(CPF_Funcionario) ON DELETE CASCADE
