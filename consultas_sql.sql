@@ -52,20 +52,20 @@ GROUP BY
 ORDER BY Total_Visitas DESC;
 SELECT * FROM VisitaPorTrimestre;
 
-/*Juntamos a tabela hotel com reserva e retornamos todas as tuplas que possuem o CEP '10110-111 cujo o número de quartos são conhecidos' */
-SELECT *
+/*Hotel, quarto, check in e out a partir de um CEP dado */
+SELECT h.Id_Hotel, r.Quarto as quarto_reservado,  r.Check_In, r.Check_Out
 FROM hotel h
 INNER JOIN reserva r
 ON h.id_hotel = r.id_hotel 
-WHERE CEP = '10110-111' AND h.num_quartos is NOT NULL;
+WHERE CEP = '10110-111';
 
-/* Consulta que retorna a media de idade de cada hotel da base de dados */
+/* Consulta que retorna a media de idades dos clientes que fazem reserva em cada hotel da base de dados */
 SELECT h.Id_Hotel, AVG(c.Idade) AS media
 FROM Cliente c
 INNER JOIN Efetua e ON c.CPF_Cliente = e.CPF_Cliente
 INNER JOIN Hotel h ON e.Id_Hotel  = h.Id_Hotel
 GROUP BY h.Id_Hotel
-ORDER BY media DESC;;
+ORDER BY media DESC;
 
 /* Para cada categoria de Faixa etaria, retorna a quantidade de clientes para cada categoria*/
 SELECT
@@ -111,7 +111,7 @@ WHERE h.Id_Hotel IN (
 
 
 /*Consulta que nos possibilita analisar as atrações mais visitadas pelos clientes com idade acima de 30 anos */
-SELECT a.ID_Atracao, a.Local, COUNT(*) AS Total_Visitas
+SELECT  a.Local, COUNT(*) AS Total_Visitas
 FROM Atracao a
 WHERE a.ID_Atracao IN (
     SELECT DISTINCT l.ID_Atracao
@@ -135,8 +135,8 @@ HAVING AVG(qp.Preco) > (
 );
 
 
-/*Retorna os nomes dos clientes que foram a atração mais cara da base de dados*/
-SELECT c.nome, a.local, a.preco
+/*Retorna os nomes dos clientes que foram à atração mais cara da base de dados*/
+SELECT c.nome
 FROM atracao a
 INNER JOIN leva l ON a.ID_ATRACAO = l.ID_ATRACAO
 INNER JOIN cliente c ON c.CPF_CLIENTE = l.CPF_CLIENTE
@@ -181,7 +181,7 @@ GROUP BY Faixa_Etaria
 ORDER BY COUNT(*) DESC;
 
 
-/* Com o objetivo de comparar as idades dos clientes que visitaram Alguma praça e o maracana, consultaremos os clientes que visitaram o museu que são mais velhos que todos que foram ao maracana */
+/* Com o objetivo de comparar as idades dos clientes que visitaram Alguma praça ou maracana, consultaremos quais são os clientes que visitaram o praça que são mais velhos que todos que foram ao maracana */
 SELECT c.Nome, c.Idade
 FROM Cliente c
 WHERE c.Nome IN (
@@ -199,7 +199,7 @@ AND c.Idade > ALL (
     WHERE a2.Local LIKE '%Maracanã%'
 );
 
-/*Com o objetivo de fazer uma analise dos clientes que visitaram atrações mais "culturais", consultaremos a uniao dos clientes que visitaram  */
+/*Com o objetivo de fazer uma analise dos clientes que visitaram atrações mais "culturais", consultaremos a uniao dos clientes que visitaram  museus e/ou bibliotecas*/
 
 SELECT c.Nome, c.Idade, a.Local  
 FROM Cliente c
@@ -220,9 +220,9 @@ FROM Atracao A
 LEFT JOIN Leva L ON A.ID_Atracao = L.ID_Atracao
 LEFT JOIN Cliente C ON L.CPF_Cliente = C.CPF_Cliente;
 
-/*Agrupando por país, mostraremos a idade minima dos clientes*/
-SELECT e.Pais, MIN(c.Idade) as Idade_Minima
+/*Agrupando por país, mostraremos a menor idade dos clientes*/
+SELECT e.Pais, MIN(c.Idade) as Menor_Idade
 FROM Cliente c
 INNER JOIN Endereco e ON e.CEP = c.CEP
 GROUP BY e.Pais
-ORDER BY Idade_Minima ASC;
+ORDER BY Menor_Idade ASC;
