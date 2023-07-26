@@ -149,3 +149,11 @@ CREATE TABLE Efetua(
     CONSTRAINT fk_ef2 FOREIGN KEY (Id_Hotel, Id_Reserva) REFERENCES Reserva(Id_Hotel, Id_Reserva) ON DELETE CASCADE,
     CONSTRAINT fk_ef3 FOREIGN KEY (CPF_Funcionario) REFERENCES Agente(CPF_Funcionario) ON DELETE CASCADE
 );
+
+/*Trigger que informa o usario que o UPDATE que ele está fazendo na tabela LocalCapacidade */
+CREATE OR REPLACE TRIGGER confirmacao_update
+AFTER UPDATE OF Local, Capacidade ON LocalCapacidade 
+BEGIN
+	 DBMS_OUTPUT.PUT_LINE('Alteração executada com sucesso!');
+END;
+
