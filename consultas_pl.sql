@@ -160,3 +160,37 @@ BEGIN
     END LOOP;
 END;
 /
+
+/*Trigger que informa o usario que o UPDATE que ele está fazendo na tabela LocalCapacidade */
+CREATE OR REPLACE TRIGGER confirmacao_update
+AFTER UPDATE OF Local, Capacidade ON LocalCapacidade 
+BEGIN
+	 DBMS_OUTPUT.PUT_LINE('Alteração executada com sucesso!');
+END;
+
+/* Pesquisa que mostra quais são as atrações, e suas respectivas capacidades*/
+CREATE OR REPLACE PROCEDURE ExibirLocaisCapacidade AS
+  v_Local LocalCapacidade.Local%TYPE;
+  v_Capacidade LocalCapacidade.Capacidade%TYPE;
+
+  CURSOR c_LocaisCapacidade IS
+    SELECT Local, Capacidade
+    FROM LocalCapacidade;
+BEGIN
+  OPEN c_LocaisCapacidade;
+
+  LOOP
+    FETCH c_LocaisCapacidade INTO v_Local, v_Capacidade;
+
+    EXIT WHEN c_LocaisCapacidade%NOTFOUND;
+
+    DBMS_OUTPUT.PUT_LINE('Local: ' || v_Local || ', Capacidade: ' || v_Capacidade);
+  END LOOP;
+
+  CLOSE c_LocaisCapacidade;
+  DBMS_OUTPUT.PUT_LINE('Exibição dos locais e capacidades concluída.');
+
+END;
+/
+
+EXEC ExibirLocaisCapacidade;
