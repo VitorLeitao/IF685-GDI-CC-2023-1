@@ -71,9 +71,9 @@ CREATE OR REPLACE TYPE tp_Agente UNDER tp_funcionario(
 );
 -- Testando o Final Member
 DECLARE
-	Agente tp_Agente;
+	Agente tp_Agente('10987654321', 'Maria', 'F', 25, NumTelefones ('81998598343', '81986991192'),'maria@email.com');
 BEGIN
-
+	Agente.altera_nome('Santana');
 END;
 -- Criando Tabelas do Subtipo AGENTE
 CREATE TABLE tb_Agente OF tp_Agente;
@@ -151,3 +151,49 @@ END;
 /
 
 ALTER TYPE tp_atracao ADD ATTRIBUTE(capacidade NUMBER) CASCADE;
+
+
+-- Nested table
+-- Criando o tipo de objeto tp_reserva
+CREATE OR REPLACE TYPE tp_reserva AS OBJECT (
+    Id_Reserva INT,
+    Quarto VARCHAR2(10),
+    Check_In DATE,
+    Check_Out DATE
+);
+/
+
+-- Criando o tipo para NESTED TABLE de reservas
+CREATE OR REPLACE TYPE tp_reservas IS TABLE OF tp_reserva;
+/
+
+-- Criando o tipo de objeto tp_hotel que vai ter varias reservas
+CREATE OR REPLACE TYPE tp_hotel AS OBJECT (
+    Id_Hotel INT,
+    CEP VARCHAR2(9),
+    Num_quartos INT,
+    Num_endereco VARCHAR2(10),
+    Reservas tp_reservas
+);
+/
+
+-- Criando a tabela que irá armazenar os objetos tp_hotel
+CREATE TABLE tb_hotel OF tp_hotel (
+    Id_Hotel PRIMARY KEY
+) NESTED TABLE Reservas STORE AS tb_reservas;
+
+-- Exemplo de inserção de dados
+INSERT INTO tb_hotel VALUES (
+    1, 
+    '12345678',
+    100,
+    '10A',
+    tp_reservas(
+        tp_reserva(1, '101', TO_DATE('2023-08-22','YYYY-MM-DD'), TO_DATE('2023-08-25','YYYY-MM-DD')),
+        tp_reserva(2, '102', TO_DATE('2023-08-23','YYYY-MM-DD'), TO_DATE('2023-08-26','YYYY-MM-DD'))
+    )
+);
+
+-- Visualizando a neated table
+SELECT * 
+FROM TABLE (SELECT h.Reservas FROM tb_hotel h WHERE h.Id_Hotel = 1);
