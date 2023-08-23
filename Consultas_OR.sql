@@ -64,6 +64,13 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE(resultado);
 END;
 
+-- criando tabela motorista e inserindo elemento para a tabela hospeda
+CREATE TABLE tb_Motorista OF tp_Motorista(
+    CPF_Funcionario PRIMARY KEY
+);
+
+INSERT INTO tb_Motorista VALUES('87965433284', 'jonathan', 'M', 34, NULL, 'Categoria D');
+
 -- CRIANDO OBJETO AGENTE
 DROP TYPE tp_Agente;
 CREATE OR REPLACE TYPE tp_Agente UNDER tp_funcionario(
@@ -75,6 +82,7 @@ DECLARE
 BEGIN
 	Agente.altera_nome('Santana');
 END;
+
 -- Criando Tabelas do Subtipo AGENTE
 CREATE TABLE tb_Agente OF tp_Agente;
 INSERT INTO tb_Agente (CPF_Funcionario, Nome, Sexo, Idade, lista_fones, Email) VALUES ('10987654321', 'Maria', 'F', 25, NumTelefones ('81998598343', '81986991192'),'maria@email.com');
@@ -114,17 +122,20 @@ BEGIN
     END IF;
 END;
 
+--Alterando tipo atração
+ALTER TYPE tp_atracao ADD ATTRIBUTE(capacidade NUMBER) CASCADE;
 
 -- Order member function: Comparando a idade de dois objetios do tipo cliente
 DROP TYPE tp_cliente;
 
--- Criando Objeto 
+-- Criando Objeto cliente
 CREATE OR REPLACE TYPE tp_cliente AS OBJECT(
     CPF_Cliente VARCHAR(11),
     CEP VARCHAR(9),
     Idade INT,
     Nome CHAR(50),
     Num_endereco VARCHAR(10),
+    indicador REF tp_cliente,
     ORDER MEMBER FUNCTION ComparaIdade(C tp_cliente) RETURN INTEGER
 );
 /
@@ -150,7 +161,60 @@ BEGIN
 END;
 /
 
-ALTER TYPE tp_atracao ADD ATTRIBUTE(capacidade NUMBER) CASCADE;
+-- Criando tabela cliente e inserindo elementos
+CREATE TABLE tb_cliente OF tp_cliente(
+    CPF_Cliente PRIMARY KEY,
+    indicador SCOPE IS tb_cliente
+);
+
+
+INSERT INTO tb_cliente VALUES(
+    tp_cliente('84869866531', '85731110', 21, 'Pedro','900', NULL)
+);
+
+INSERT INTO tb_cliente VALUES(
+    tp_cliente('23423423434', '54431110', 28, 'jOAO','92', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '84869866531'))
+);
+
+INSERT INTO tb_cliente VALUES(
+    tp_cliente('45654645645', '84759963', 67, 'Maria','79', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '84869866531'))
+);
+
+SELECT C.CPF_Cliente, C.CEP, C.nome, C.idade, DEREF(C.indicador).nome FROM tb_cliente C;
+
+-- Usando o value para ver os dados
+SELECT VALUE(C) FROM tb_cliente C
+
+-- Criando tipo + tabela hospeda
+CREATE OR REPLACE TYPE tp_hospeda AS OBJECT(
+    CPF_Cli REF tp_cliente,
+    ID_Hot REF tp_hotel,
+    Ponto_embarque VARCHAR(30),
+    Ponto_desembarque VARCHAR(30),
+    Data_hora DATE,
+    Motorista REF tp_Motorista
+);
+
+CREATE TABLE tb_hospeda OF tp_hospeda(
+    CPF_Cli WITH ROWID REFERENCES tb_cliente,
+    ID_Hot WITH ROWID REFERENCES tb_hotel,
+    Motorista SCOPE IS tb_Motorista
+);
+
+INSERT INTO tb_hospeda VALUES((SELECT REF(C) FROM tb_cliente C WHERE CPF_Cliente = '84869866531'),
+    							(SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 1),
+    							'hotel transilvania', 'cristo redentor', TO_DATE('2023-08-22','YYYY-MM-DD'),
+    							(SELECT REF(M) FROM tb_Motorista M WHERE CPF_Funcionario = '87965433284'));
+
+SELECT 
+    DEREF(h.CPF_Cli).CPF_Cliente,
+    DEREF(h.ID_Hot).Id_Hotel,
+    h.Ponto_embarque,
+    h.Ponto_desembarque,
+    h.Data_hora,
+    DEREF(h.Motorista).CPF_Funcionario
+FROM tb_hospeda h;
+
 
 
 -- Nested table
