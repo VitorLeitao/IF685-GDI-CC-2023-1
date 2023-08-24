@@ -25,6 +25,7 @@ CREATE OR REPLACE TYPE tp_Motorista UNDER tp_funcionario (
     Num_Cnh VARCHAR(20),
     MEMBER PROCEDURE get_informations,
     MEMBER FUNCTION calcularAposentadoria RETURN VARCHAR2
+    OVERRIDING MEMBER PROCEDURE altera_nome(novo_nome VARCHAR)
 );
 
 CREATE OR REPLACE TYPE BODY tp_Motorista AS
@@ -42,6 +43,10 @@ CREATE OR REPLACE TYPE BODY tp_Motorista AS
         ELSE
             RETURN 'Ainda não próximo da aposentadoria';
         END IF;
+    END;
+    OVERRIDING MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) IS
+    BEGIN
+        SELF.Nome := 'sr(a). ' || novo_nome;
     END;
 END;
 
