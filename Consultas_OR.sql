@@ -137,6 +137,7 @@ CREATE OR REPLACE TYPE tp_cliente AS OBJECT(
     Num_endereco VARCHAR(10),
     indicador REF tp_cliente,
     ORDER MEMBER FUNCTION ComparaIdade(C tp_cliente) RETURN INTEGER
+    CONSTRUCTOR FUNCTION tp_cliente(SELF IN OUT NOCOPY tp_cliente, CPF VARCHAR(11), Nome VARCHAR(50), Idade INT) RETURN SELF AS RESULT
 );
 /
 
@@ -144,6 +145,15 @@ CREATE OR REPLACE TYPE BODY tp_cliente IS
     ORDER MEMBER FUNCTION ComparaIdade(C tp_cliente) RETURN INTEGER IS
     BEGIN
         RETURN SELF.Idade - C.Idade;
+    END;
+
+    CONSTRUCTOR FUNCTION tp_cliente(SELF IN OUT NOCOPY tp_cliente, CPF VARCHAR(11), CEP VARCHAR(9), Idade INT, Nome VARCHAR(50)) RETURN SELF AS RESULT IS
+    BEGIN
+        SELF.CPF_Cliente := CPF;
+        SELF.CEP := CEP;
+        SELF.Idade := Idade;
+        SELF.Nome := Nome;
+        RETURN;
     END;
 END;
 /
