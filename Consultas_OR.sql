@@ -1,41 +1,49 @@
 -- Criando Varray para armazenar 
-CREATE TYPE NumTelefones AS VARRAY (2) OF VARCHAR2(11); -- 19
-DROP TYPE NumTelefones;
+CREATE TYPE NumTelefones AS VARRAY (2) OF VARCHAR2(11);
+/
 
--- tipo de objeto tp_funcionario
+-- Tipo de objeto tp_funcionario
 DROP TYPE tp_funcionario;
-CREATE OR REPLACE TYPE tp_funcionario AS OBJECT( -- 01
+CREATE OR REPLACE TYPE tp_funcionario AS OBJECT(
     CPF_Funcionario VARCHAR(11),
     Nome VARCHAR(50),
-    Sexo VARCHAR(1),
+    Sexo VARCHAR(10), -- 2
     Idade INT,
     lista_fones NumTelefones,
-    MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) -- 03
-) NOT FINAL NOT INSTANTIABLE; -- 10/11
-CREATE OR REPLACE TYPE BODY tp_funcionario AS -- 02 
-    MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) IS
+    MEMBER PROCEDURE altera_sexo
+) NOT FINAL NOT INSTANTIABLE;
+/
+
+CREATE OR REPLACE TYPE BODY tp_funcionario AS
+    MEMBER PROCEDURE altera_sexo IS
     BEGIN
-        SELF.Nome := novo_nome; -- Atualiza o nome
+        IF SELF.Sexo = 'Masculino' THEN
+            SELF.Sexo := 'M';
+        ELSIF SELF.Sexo = 'Feminino' THEN
+            SELF.Sexo := 'F';
+        END IF;
     END;
 END;
+/
 
 -- Defina o subtipo tp_Motorista
 DROP TYPE tp_Motorista;
 CREATE OR REPLACE TYPE tp_Motorista UNDER tp_funcionario (
     Num_Cnh VARCHAR(20),
     MEMBER PROCEDURE get_informations,
-    FINAL MEMBER FUNCTION calcularAposentadoria RETURN VARCHAR2, -- 04 / 09
-    OVERRIDING MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) -- 08
+    FINAL MEMBER FUNCTION calcularAposentadoria RETURN VARCHAR2,
+    OVERRIDING MEMBER PROCEDURE altera_sexo
 );
 
-CREATE OR REPLACE TYPE BODY tp_Motorista AS -- Completar as funções de tp_Motorista
+CREATE OR REPLACE TYPE BODY tp_Motorista AS
     MEMBER PROCEDURE get_informations AS
     BEGIN
         DBMS_OUTPUT.PUT_LINE('Nome: ' || Nome);
         DBMS_OUTPUT.PUT_LINE('Sexo: ' || Sexo);
         DBMS_OUTPUT.PUT_LINE('Idade: ' || Idade);
-		DBMS_OUTPUT.PUT_LINE('CNH: ' || Num_Cnh);
+        DBMS_OUTPUT.PUT_LINE('CNH: ' || Num_Cnh);
     END;
+
     FINAL MEMBER FUNCTION calcularAposentadoria RETURN VARCHAR2 IS
     BEGIN
         IF Idade >= 65 THEN
@@ -45,29 +53,36 @@ CREATE OR REPLACE TYPE BODY tp_Motorista AS -- Completar as funções de tp_Moto
         END IF;
     END;
 
-	OVERRIDING MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) IS
+    OVERRIDING MEMBER PROCEDURE altera_sexo IS
     BEGIN
-        SELF.Nome := 'sr(a). ' || novo_nome;
+        IF UPPER(SELF.Sexo) IN ('MASCULINO', 'HOMEM') THEN -- ALterando o altera_sexo pra ser mais abrangente
+            SELF.Sexo := 'M';
+        ELSIF UPPER(SELF.Sexo) IN ('FEMININO', 'MULHER') THEN
+            SELF.Sexo := 'F';
+        END IF;
     END;
 END;
+/
 
--- teste da member procedure
+-- Teste de get_informations
 DECLARE
     f  tp_Motorista; 
 BEGIN
-    f := tp_Motorista('123456789', 'Dodo', 'M', 50,NumTelefones ('81998598343', '81986991192') ,'CNH123456');
+    f := tp_Motorista('123456789', 'Dodo', 'M', 50, NumTelefones ('81998598343', '81986991192') ,'CNH123456');
     DBMS_OUTPUT.ENABLE;
     f.get_informations();
 END;
 
--- teste overriding
+-- Teste de altera_sexo
 DECLARE
     p tp_motorista;
 BEGIN
-    P := tp_Motorista('123456789', 'Dodo', 'M', 50, NumTelefones ('81998598343', '81986991192') ,'CNH123456');
-	p.altera_nome('DODOOOOOOO');
-	DBMS_OUTPUT.PUT_LINE('Nome: ' || p.Nome);
+    P := tp_Motorista('123456789', 'Dodo', 'HOMEM', 50, NumTelefones ('81998598343', '81986991192') ,'CNH123456');
+    p.altera_sexo();
+    DBMS_OUTPUT.PUT_LINE('sexo: ' || p.sexo);
 END;
+/
+
 
 -- teste da member function
 DECLARE
