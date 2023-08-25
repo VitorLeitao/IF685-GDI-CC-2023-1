@@ -1,21 +1,21 @@
 -- Criando Varray para armazenar 
-CREATE TYPE NumTelefones AS VARRAY (2) OF VARCHAR2(11);
+CREATE TYPE NumTelefones AS VARRAY (2) OF VARCHAR2(11); -- 19
 DROP TYPE NumTelefones;
 
 -- tipo de objeto tp_funcionario
 DROP TYPE tp_funcionario;
-CREATE OR REPLACE TYPE tp_funcionario AS OBJECT(
+CREATE OR REPLACE TYPE tp_funcionario AS OBJECT( -- 01
     CPF_Funcionario VARCHAR(11),
     Nome VARCHAR(50),
     Sexo VARCHAR(1),
     Idade INT,
     lista_fones NumTelefones,
-    MEMBER PROCEDURE altera_nome(novo_nome VARCHAR)
-) NOT FINAL NOT INSTANTIABLE;
-CREATE OR REPLACE TYPE BODY tp_funcionario AS
+    MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) -- 03
+) NOT FINAL NOT INSTANTIABLE; -- 10/11
+CREATE OR REPLACE TYPE BODY tp_funcionario AS -- 02 
     MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) IS
     BEGIN
-        SELF.Nome := novo_nome;
+        SELF.Nome := novo_nome; -- Atualiza o nome
     END;
 END;
 
@@ -24,11 +24,11 @@ DROP TYPE tp_Motorista;
 CREATE OR REPLACE TYPE tp_Motorista UNDER tp_funcionario (
     Num_Cnh VARCHAR(20),
     MEMBER PROCEDURE get_informations,
-    FINAL MEMBER FUNCTION calcularAposentadoria RETURN VARCHAR2,
-    OVERRIDING MEMBER PROCEDURE altera_nome(novo_nome VARCHAR)
+    FINAL MEMBER FUNCTION calcularAposentadoria RETURN VARCHAR2, -- 04 / 09
+    OVERRIDING MEMBER PROCEDURE altera_nome(novo_nome VARCHAR) -- 08
 );
 
-CREATE OR REPLACE TYPE BODY tp_Motorista AS
+CREATE OR REPLACE TYPE BODY tp_Motorista AS -- Completar as funções de tp_Motorista
     MEMBER PROCEDURE get_informations AS
     BEGIN
         DBMS_OUTPUT.PUT_LINE('Nome: ' || Nome);
@@ -100,8 +100,8 @@ CREATE OR REPLACE TYPE tp_atracao AS OBJECT (
     ID_Atracao NUMBER,
     Local VARCHAR(200),
     Preco NUMBER,
-    CONSTRUCTOR FUNCTION tp_atracao(SELF IN OUT NOCOPY tp_atracao, ID_Atracao NUMBER, Local VARCHAR, Preco NUMBER) RETURN SELF AS RESULT,
-    MAP MEMBER FUNCTION GetPreco RETURN NUMBER
+    CONSTRUCTOR FUNCTION tp_atracao(SELF IN OUT NOCOPY tp_atracao, ID_Atracao NUMBER, Local VARCHAR, Preco NUMBER) RETURN SELF AS RESULT, -- 07
+    MAP MEMBER FUNCTION GetPreco RETURN NUMBER -- 06
 );
 
 CREATE OR REPLACE TYPE BODY tp_atracao AS
@@ -132,7 +132,7 @@ BEGIN
     END IF;
 END;
 --Alterando tipo atração
-ALTER TYPE tp_atracao ADD ATTRIBUTE(capacidade NUMBER) CASCADE;
+ALTER TYPE tp_atracao ADD ATTRIBUTE(capacidade NUMBER) CASCADE; -- 12
 
 -- Order member function: Comparando a idade de dois objetios do tipo cliente
 DROP TYPE tp_cliente;
@@ -144,8 +144,8 @@ CREATE OR REPLACE TYPE tp_cliente AS OBJECT(
     Idade INT,
     Nome CHAR(50),
     Num_endereco VARCHAR(10),
-    indicador REF tp_cliente,
-    ORDER MEMBER FUNCTION ComparaIdade(C tp_cliente) RETURN INTEGER
+    indicador REF tp_cliente, -- 15
+    ORDER MEMBER FUNCTION ComparaIdade(C tp_cliente) RETURN INTEGER -- 05
 );
 /
 
@@ -207,7 +207,7 @@ CREATE OR REPLACE TYPE tp_hospeda AS OBJECT(
 -- ===============================CRIANDO AS TABELAS BASEADAS NOS TIPOS ============================================
 
 -- criando tabela motorista 
-CREATE TABLE tb_Motorista OF tp_Motorista(
+CREATE TABLE tb_Motorista OF tp_Motorista( -- 13
     CPF_Funcionario PRIMARY KEY
 );
 -- Criando Tabelas AGENTE
@@ -224,16 +224,16 @@ CREATE TABLE tb_atracao OF tp_atracao(
 -- Criando tabela cliente 
 CREATE TABLE tb_cliente OF tp_cliente(
     CPF_Cliente PRIMARY KEY,
-    indicador SCOPE IS tb_cliente
+    indicador SCOPE IS tb_cliente -- 16
 );
 -- Criando a tabela tb_hotel
 CREATE TABLE tb_hotel OF tp_hotel (
     Id_Hotel PRIMARY KEY
-) NESTED TABLE Reservas STORE AS tb_reservas;
+) NESTED TABLE Reservas STORE AS tb_reservas; -- 20
 
 -- Crirando tabela se_hospeda
 CREATE TABLE tb_hospeda OF tp_hospeda(
-    CPF_Cli WITH ROWID REFERENCES tb_cliente,
+    CPF_Cli WITH ROWID REFERENCES tb_cliente, -- 14
     ID_Hot WITH ROWID REFERENCES tb_hotel,
     Motorista SCOPE IS tb_Motorista
 );
@@ -242,7 +242,7 @@ CREATE TABLE tb_hospeda OF tp_hospeda(
 SELECT t.CPF_Funcionario, t.Nome, t.Sexo, t.Idade, f.COLUMN_VALUE AS Telefone
 FROM tb_Agente t, TABLE(t.lista_fones) f;
 SELECT C.CPF_Cliente, C.CEP, C.nome, C.idade, DEREF(C.indicador).nome FROM tb_cliente C;
-SELECT VALUE(C).nome, VALUE(C).CPF_Cliente FROM tb_cliente C
+SELECT VALUE(C).nome, VALUE(C).CPF_Cliente FROM tb_cliente C -- 18
 SELECT * -- Visualizando a neated table
 FROM TABLE (SELECT h.Reservas FROM tb_hotel h WHERE h.Id_Hotel = 1);
 SELECT DEREF(h.CPF_Cli).CPF_Cliente,DEREF(h.ID_Hot).Id_Hotel,h.Ponto_embarque,h.Ponto_desembarque,h.Data_hora,DEREF(h.Motorista).CPF_Funcionario
@@ -251,7 +251,7 @@ FROM tb_hospeda h WHERE DEREF(h.CPF_Cli).CPF_Cliente = '23423423434';
 
 -- ===========================Povoamento das tabelas=============================================
 -- Tabela Cliente
-INSERT INTO tb_cliente VALUES (tp_cliente('84869866531', '85731110', 21, 'Pedro', '900', NULL));
+INSERT INTO tb_cliente VALUES (tp_cliente('84869866531', '85731110', 21, 'Pedro', '900', NULL)); -- 17
 INSERT INTO tb_cliente VALUES (tp_cliente('23423423434', '54431110', 28, 'João', '92', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '84869866531')));
 INSERT INTO tb_cliente VALUES (tp_cliente('45654645645', '84759963', 67, 'Maria', '79', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '84869866531')));
 INSERT INTO tb_cliente VALUES (tp_cliente('78978978978', '96541236', 45, 'Ana', '34', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '23423423434')));
