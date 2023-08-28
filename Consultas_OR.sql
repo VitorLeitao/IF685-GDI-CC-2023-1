@@ -242,9 +242,9 @@ CREATE TABLE tb_cliente OF tp_cliente(
     indicador SCOPE IS tb_cliente -- 16
 );
 -- Criando a tabela tb_hotel
-CREATE TABLE tb_hotel OF tp_hotel (
+CREATE TABLE tb_hotel OF tp_hotel(
     Id_Hotel PRIMARY KEY
-) NESTED TABLE Reservas STORE AS tb_reservas; -- 20
+) NESTED TABLE Reservas STORE AS tb_reservas -- 20
 
 -- Crirando tabela se_hospeda
 CREATE TABLE tb_hospeda OF tp_hospeda(
@@ -266,16 +266,17 @@ FROM tb_hospeda h WHERE DEREF(h.CPF_Cli).CPF_Cliente = '23423423434';
 
 -- ===========================Povoamento das tabelas=============================================
 -- Tabela Cliente
-INSERT INTO tb_cliente VALUES (tp_cliente('84869866531', '85731110', 21, 'Pedro', '900', NULL)); -- 17
+INSERT INTO tb_cliente VALUES (tp_cliente('84869866531', '85731110', 21, 'Pedro', '900', NULL)); 
 INSERT INTO tb_cliente VALUES (tp_cliente('23423423434', '54431110', 28, 'João', '92', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '84869866531')));
-INSERT INTO tb_cliente VALUES (tp_cliente('45654645645', '84759963', 67, 'Maria', '79', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '84869866531')));
-INSERT INTO tb_cliente VALUES (tp_cliente('78978978978', '96541236', 45, 'Ana', '34', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '23423423434')));
-INSERT INTO tb_cliente VALUES (tp_cliente('12312312312', '74569821', 32, 'Carlos', '56', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '45654645645')));
-INSERT INTO tb_cliente VALUES (tp_cliente('55555555555', '12345678', 28, 'Mariana', '22', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '78978978978')));
-INSERT INTO tb_cliente VALUES (tp_cliente('77777777777', '98765432', 53, 'Ricardo', '44', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '12312312312')));
-INSERT INTO tb_cliente VALUES (tp_cliente('99999999999', '36985214', 19, 'Julia', '17', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '55555555555')));
-INSERT INTO tb_cliente VALUES (tp_cliente('22222222222', '74185296', 37, 'Fernanda', '63', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '77777777777')));
-INSERT INTO tb_cliente VALUES (tp_cliente('33333333333', '12312312', 25, 'Lucas', '38', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '99999999999')));
+INSERT INTO tb_cliente VALUES (tp_cliente('45654645645', '84759963', 67, 'Maria', '79', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '23423423434')));
+INSERT INTO tb_cliente VALUES (tp_cliente('78978978978', '96541236', 45, 'Ana', '34', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '45654645645')));
+INSERT INTO tb_cliente VALUES (tp_cliente('12312312312', '74569821', 32, 'Carlos', '56', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '78978978978')));
+INSERT INTO tb_cliente VALUES (tp_cliente('55555555555', '12345678', 28, 'Mariana', '22', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '12312312312')));
+INSERT INTO tb_cliente VALUES (tp_cliente('77777777777', '98765432', 53, 'Ricardo', '44', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '55555555555')));
+INSERT INTO tb_cliente VALUES (tp_cliente('99999999999', '36985214', 19, 'Julia', '17', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '77777777777')));
+INSERT INTO tb_cliente VALUES (tp_cliente('22222222222', '74185296', 37, 'Fernanda', '63', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '99999999999')));
+INSERT INTO tb_cliente VALUES (tp_cliente('33333333333', '12312312', 25, 'Lucas', '38', (SELECT REF(C) FROM tb_cliente C WHERE C.CPF_Cliente = '22222222222')));
+
 
 -- Tabel Hotel
 INSERT INTO tb_hotel VALUES (
@@ -299,7 +300,7 @@ INSERT INTO tb_hotel VALUES (
 INSERT INTO tb_hotel VALUES (
     5,'87654321', 90,'8A',tp_reservas(
         tp_reserva(9, '501', TO_DATE('2023-12-15','YYYY-MM-DD'), TO_DATE('2023-12-20','YYYY-MM-DD')),
-        tp_reserva(10, '502', TO_DATE('2023-12-22','YYYY-MM-DD'), TO_DATE('2023-12-27','YYYY-MM-DD')) ));
+        tp_reserva(10, '502', TO_DATE('2023-12-22','YYYY-MM-DD'), TO_DATE('2023-12-27','YYYY-MM-DD'))));
 
 -- Se hospeda
 INSERT INTO tb_hospeda VALUES (
@@ -310,15 +311,23 @@ INSERT INTO tb_hospeda VALUES (
 );
 INSERT INTO tb_hospeda VALUES (
     (SELECT REF(C) FROM tb_cliente C WHERE CPF_Cliente = '23423423434'),
-    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 1),
-    'Hotel Transilvânia', 'Cristo Redentor', TO_DATE('2023-08-22','YYYY-MM-DD'),
+    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 2),
+    'Hotel Trivago', 'Praia de Copacabana', TO_DATE('2023-09-10','YYYY-MM-DD'),
     (SELECT REF(M) FROM tb_motorista M WHERE CPF_Funcionario = '87965433284')
 );
 INSERT INTO tb_hospeda VALUES (
     (SELECT REF(C) FROM tb_cliente C WHERE CPF_Cliente = '45654645645'),
-    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 2),
-    'Outro Hotel', 'Outro Local', TO_DATE('2023-09-10','YYYY-MM-DD'),
+    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 3),
+    'Hotel Boa Praia', 'Porto de Galinhas', TO_DATE('2023-10-05','YYYY-MM-DD'),
     (SELECT REF(M) FROM tb_motorista M WHERE CPF_Funcionario = '87965433284')
+);
+INSERT INTO tb_hospeda VALUES (
+    (SELECT REF(C) FROM tb_cliente C WHERE CPF_Cliente = '84869866531'),
+    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 1),
+    'Hotel Transilvânia', 'Cristo Redentor', TO_DATE('2023-07-25','YYYY-MM-DD'),
+    (SELECT REF(M) FROM tb_motorista M WHERE CPF_Funcionario = '87965433284')
+);
+
 
 -- Tabela atraçaõ
 INSERT INTO tb_atracao VALUES (tp_atracao(1, 'Museu de Arte Moderna', 10));
