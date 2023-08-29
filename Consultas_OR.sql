@@ -100,14 +100,6 @@ DROP TYPE tp_Agente;
 CREATE OR REPLACE TYPE tp_Agente UNDER tp_funcionario(
     Email VARCHAR(50)
 );
--- Testando o Final Member
-DECLARE
-	Agente tp_Agente;
-BEGIN
-    Agente := tp_Agente('10987654321', 'Maria', 'F', 25, NumTelefones ('81998598343', '81986991192'),'maria@email.com');
-	Agente.altera_nome('Santana');
-	DBMS_OUTPUT.PUT_LINE('Nome: ' || Agente.Nome);
-END;
 
 -- Usando função MAP Para setar o preço como forma de comparação entre duas atrações
 DROP TYPE tp_atracao;
@@ -244,7 +236,7 @@ CREATE TABLE tb_cliente OF tp_cliente(
 -- Criando a tabela tb_hotel
 CREATE TABLE tb_hotel OF tp_hotel(
     Id_Hotel PRIMARY KEY
-) NESTED TABLE Reservas STORE AS tb_reservas -- 20
+) NESTED TABLE Reservas STORE AS tb_reservas 
 
 -- Crirando tabela se_hospeda
 CREATE TABLE tb_hospeda OF tp_hospeda(
