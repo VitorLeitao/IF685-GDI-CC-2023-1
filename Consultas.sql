@@ -33,26 +33,15 @@ WHERE (
     WHERE f.COLUMN_VALUE LIKE '81%'
 ) > 1;
 
+--=======================================================================================================================================================================================================================================
 -- CONSULTAS COM DEREF
--- Consulta nome do cliente e cep do hotel na tabela hospeda
-SELECT DEREF(h.CPF_Cli).Nome AS NomeCliente, DEREF(h.ID_Hot).CEP AS CEPHotel
-FROM tb_hospeda h;
 
--- Consulta nome e quarto dentro da Nested table Reservas
-SELECT DEREF(h.CPF_Cli).Nome AS NomeCliente, r.Quarto
-FROM tb_hospeda h, TABLE(DEREF(h.ID_Hot).Reservas) r;
+-- Consulta o Nome do indicador em que tenha 'ia' no nome ou que o numero do endereço seja maior que 2
+SELECT C.Nome, DEREF(C.indicador).Nome AS NomeIndicador
+FROM tb_cliente C
+WHERE DEREF(C.indicador).Nome LIKE '%ia%' OR LENGTH(DEREF(C.indicador).Num_endereco) > 2;
 
--- Consulta nome e quarto dentro da Nested table Reservas em que o checkin é maior ou igual ao SYSDATE
-SELECT DEREF(h.CPF_Cli).Nome AS NomeCliente, r.Quarto
-FROM tb_hospeda h, TABLE(DEREF(h.ID_Hot).Reservas) r
-WHERE r.Check_In >= SYSDATE;
-
--- Consultas ordenadas pelo checkin
-SELECT DEREF(h.CPF_Cli).Nome AS NomeCliente, r.Quarto
-FROM tb_hospeda h, TABLE(DEREF(h.ID_Hot).Reservas) r
-ORDER BY r.Check_In;
-
--- Consulta para obter informações sobre os clientes e seus indicadores, incluindo os nomes dos clientes e dos indicadores
+-- Seleciona tudo dos clientes que tenham indicadores com a idade menor doque a média da idade da tabela cliente
 SELECT
     C.CPF_Cliente AS CPF_Cliente,
     C.Nome AS Nome_Cliente,
@@ -61,9 +50,19 @@ SELECT
     DEREF(C.indicador).CPF_Cliente AS CPF_Indicador,
     DEREF(C.indicador).Nome AS Nome_Indicador,
     DEREF(C.indicador).Idade AS Idade_Indicador
-FROM tb_cliente C;
+FROM tb_cliente C
+WHERE DEREF(C.indicador).Idade < (
+    SELECT AVG(C1.Idade) 
+    FROM tb_cliente C1
+);
 
--- Consulta para obter informações sobre hóspedes, clientes, hotéis e motoristas
+-- Consulta nome e quarto dentro da Nested table Reservas em que o checkin é maior ou igual à data atual e o quarto termina com 01 e são ordenadas pelo check_in
+SELECT DEREF(h.CPF_Cli).Nome AS NomeCliente, r.Quarto
+FROM tb_hospeda h, TABLE(DEREF(h.ID_Hot).Reservas) r
+WHERE r.Check_In >= SYSDATE AND r.Quarto LIKE '%01%'
+ORDER BY r.Check_In;
+    
+-- Consulta para obter informações sobre hóspedes, clientes, hotéis e motorista com algumas condições, agrupados e ordenados e maneira escolhida.
 SELECT
     DEREF(H.CPF_Cli).CPF_Cliente AS CPF_Cliente_Hospede,
     DEREF(H.CPF_Cli).Nome AS Nome_Cliente_Hospede,
@@ -75,32 +74,35 @@ SELECT
     H.Ponto_embarque AS Ponto_Embarque,
     H.Ponto_desembarque AS Ponto_Desembarque,
     H.Data_hora AS Data_Hora_Hospedagem
-FROM tb_hospeda H;
-
--- Consultando o nome do cliente, o nome do agente (indicador) do cliente e a quantidade de vezes que o cliente foi para o hotel:
-SELECT
-    DEREF(C.CPF_Cli).Nome AS NomeCliente,
-    DEREF(H.Motorista).Nome AS NomeAgente,
-    DEREF(DEREF(H.Motorista).supervisor).Nome AS NomeSupervisor
 FROM tb_hospeda H
-JOIN tb_cliente C ON DEREF(H.CPF_Cli) = C;
+WHERE H.Ponto_embarque LIKE 'Hotel T%'
+    AND H.Data_hora <= TO_DATE('2023-09-10', 'YYYY-MM-DD')
+    AND DEREF(H.ID_Hot).Num_quartos > 20
+    AND DEREF(H.CPF_Cli).Idade > 20
+GROUP BY
+    DEREF(H.CPF_Cli).CPF_Cliente,
+    DEREF(H.CPF_Cli).Nome,
+    DEREF(H.CPF_Cli).Idade,
+    DEREF(H.ID_Hot).Id_Hotel,
+    DEREF(H.ID_Hot).Num_quartos,
+    DEREF(H.Motorista).CPF_Funcionario,
+    DEREF(H.Motorista).Nome,
+    H.Ponto_embarque,
+    H.Ponto_desembarque,
+    H.Data_hora
+ORDER BY
+    DEREF(H.CPF_Cli).Nome,
+    DEREF(H.ID_Hot).Id_Hotel;
 
-
--- Consultando nome e cep de cliente e hotel e quantas vezes o cliente foi nesse mesmo hotel
+-- Consulta nome do indicador e quantidade de vezes que o cliente foi para o mesmo hotel, utilizando deref(deref()) e em ordem decrescente
 SELECT
     DEREF(H.CPF_Cli).Nome AS NomeCliente,
-    DEREF(H.ID_Hot).CEP AS CEP_Hotel,
-    COUNT(*) AS QuantidadeVisitas
-FROM tb_hospeda H
-GROUP BY DEREF(H.CPF_Cli).Nome, DEREF(H.ID_Hot).CEP
-ORDER BY QuantidadeVisitas DESC;
-
--- Consulta nome do indicador e quantidade de vezes que o cliente foi para o mesmo hotel(dessa vez utilizando deref(deref()))
-SELECT
     DEREF(DEREF(h.CPF_Cli).indicador).Nome AS NomeIndicador,
+    DEREF(H.ID_Hot).CEP AS CEP_Hotel,
     COUNT(*) AS VezesNoHotel
 FROM tb_hospeda h
-GROUP BY DEREF(DEREF(h.CPF_Cli).indicador).Nome;
+GROUP BY DEREF(DEREF(h.CPF_Cli).indicador).Nome,  DEREF(H.ID_Hot).CEP, DEREF(H.CPF_Cli).Nome
+ORDER BY VezesNoHotel DESC;
 
 -- Consultando a quantidade de indicados e o nome do indicador
 SELECT
@@ -109,6 +111,15 @@ SELECT
 FROM tb_cliente C
 WHERE C.Indicador IS NOT NULL
 GROUP BY DEREF(C.Indicador).Nome;
+
+-- Consulta o motorista que levou mais vezes (o FETCH FIRST ROW ONLY retorna apenas uma linha da consulta, logo como ta agrupado em ordem decrescente vai retornar o com o maior numero de hospedagens)
+SELECT
+    DEREF(H.Motorista).Nome AS Nome_Motorista,
+    COUNT(*) AS Total_Hospedagens
+FROM tb_hospeda H
+GROUP BY DEREF(H.Motorista).Nome
+ORDER BY Total_Hospedagens DESC
+FETCH FIRST ROW ONLY;
 
 
 --=====================================================================================================================================================
