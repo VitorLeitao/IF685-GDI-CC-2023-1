@@ -109,3 +109,46 @@ SELECT
 FROM tb_cliente C
 WHERE C.Indicador IS NOT NULL
 GROUP BY DEREF(C.Indicador).Nome;
+
+
+--=====================================================================================================================================================
+-- CONSULTAS A NESTED TABLE
+
+-- Listar todos os hotéis que possuem pelo menos 1 reservas no mês de setembro de 2023:
+SELECT h.Id_Hotel, h.CEP, h.Num_quartos, h.Num_endereco
+FROM tb_hotel h
+WHERE (SELECT COUNT(*) 
+       FROM TABLE(h.Reservas) r 
+       WHERE EXTRACT(MONTH FROM r.Check_In) = 9 
+       AND EXTRACT(YEAR FROM r.Check_In) = 2023) >= 1;
+
+-- Encontrar todos os hotéis que possuem reservas no dia '10-SEP-2023':
+SELECT h.Id_Hotel, h.CEP, h.Num_quartos, h.Num_endereco
+FROM tb_hotel h
+WHERE EXISTS (
+    SELECT 1 
+    FROM TABLE(h.Reservas) r 
+    WHERE r.Check_In <= TO_DATE('10-SEP-2023') 
+    AND r.Check_Out > TO_DATE('10-SEP-2023')
+);
+
+
+-- Encontrar o hotel com o maior número de reservas:
+SELECT h.Id_Hotel, h.CEP, h.Num_quartos, h.Num_endereco, COUNT(*) as total_reservas
+FROM tb_hotel h, TABLE(h.Reservas) r
+GROUP BY h.Id_Hotel, h.CEP, h.Num_quartos, h.Num_endereco
+ORDER BY total_reservas DESC
+FETCH FIRST 1 ROW ONLY;
+
+-- Listar todos os hotéis e a quantidade total de dias de reservas para eles:
+SELECT h.Id_Hotel, h.CEP, h.Num_quartos, h.Num_endereco, 
+       SUM(r.Check_Out - r.Check_In) as total_days_reserved
+FROM tb_hotel h, TABLE(h.Reservas) r
+GROUP BY h.Id_Hotel, h.CEP, h.Num_quartos, h.Num_endereco;
+
+-- Encontrar todos os hotéis em que o cliente 'João' fez uma reserva:
+SELECT DISTINCT H.Id_Hotel, H.CEP, H.Num_quartos, H.Num_endereco
+FROM tb_hotel H
+JOIN tb_hospeda HP ON DEREF(HP.ID_Hot).Id_Hotel = H.Id_Hotel
+JOIN tb_cliente C ON DEREF(HP.CPF_Cli).CPF_Cliente = C.CPF_Cliente
+WHERE C.Nome = 'João';
