@@ -163,3 +163,26 @@ FROM tb_hotel H
 JOIN tb_hospeda HP ON DEREF(HP.ID_Hot).Id_Hotel = H.Id_Hotel
 JOIN tb_cliente C ON DEREF(HP.CPF_Cli).CPF_Cliente = C.CPF_Cliente
 WHERE C.Nome = 'João';
+
+--=====================================================================================================================================================
+-- CONSULTAS SELECT REF 
+
+-- Listar os CPFs de clientes que foram indicados por clientes com mais de 40 anos
+SELECT c.CPF_Cliente
+FROM tb_cliente c
+WHERE c.indicador IN (SELECT REF(c1) FROM tb_cliente c1 WHERE c1.Idade > 40);
+
+-- Listar os pontos de embarque com motorista mulheres
+SELECT h.Ponto_embarque
+FROM tb_hospeda h
+WHERE h.Motorista IN (SELECT REF(m) FROM tb_Motorista m WHERE m.Sexo = 'F');
+
+-- Listar os pontos de desembarque de clientes jovens adultos
+SELECT h.Ponto_desembarque
+FROM tb_hospeda h
+WHERE h.CPF_Cli IN (SELECT REF(c) FROM tb_cliente c WHERE c.Idade > 18 AND c.Idade < 30);
+
+-- Listar a data e hora da hospedagem de hoteis com mais de 50 quartos
+SELECT h.Data_hora
+FROM tb_hospeda h
+WHERE h.ID_Hot IN (SELECT REF(h) FROM tb_hotel h WHERE h.Num_quartos > 50);
