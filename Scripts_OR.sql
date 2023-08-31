@@ -329,17 +329,17 @@ INSERT INTO tb_atracao VALUES (tp_atracao(4, 'Parque Natural', 5));
 INSERT INTO tb_atracao VALUES (tp_atracao(5, 'Mirante da Cidade', 8));
 
 -- Povoamento motorista
-INSERT INTO tb_Motorista VALUES('87965433284', 'Jonathan', 'M', 34, NULL, 'Categoria D');
-INSERT INTO tb_Motorista VALUES('19283746589', 'Marcos', 'M', 23, NULL, 'Categoria D');
-INSERT INTO tb_Motorista VALUES('10293718309', 'Milena', 'F', 26, NULL, 'Categoria A');
-INSERT INTO tb_Motorista VALUES('14253647589', 'Michael', 'M', 21, NULL, 'Categoria B');
-INSERT INTO tb_Motorista VALUES('10293813456', 'Michele', 'F', 50, NULL, 'Categoria B');
-INSERT INTO tb_Motorista VALUES('09123564783', 'João', 'M', 53, NULL, 'Categoria C');
-INSERT INTO tb_Motorista VALUES('12354676378', 'Luana', 'F', 38, NULL, 'Categoria C');
-INSERT INTO tb_Motorista VALUES('12354639846', 'Pedro', 'M', 28, NULL, 'Categoria A');
-INSERT INTO tb_Motorista VALUES('98757364789', 'Joana', 'F', 44, NULL, 'Categoria A');
-INSERT INTO tb_Motorista VALUES('98756473678', 'Lucas', 'M', 39, NULL, 'Categoria D');
-INSERT INTO tb_Motorista VALUES('64534256789', 'Alexandra', 'F', 39, NULL, 'Categoria D');
+INSERT INTO tb_Motorista VALUES('87965433284', 'Jonathan', 'M', 34, NumTelefones('81988598343', '81986991192'), 'Categoria D');
+INSERT INTO tb_Motorista VALUES('19283746589', 'Marcos', 'M', 23, NumTelefones('81978678343', '81986981182'), 'Categoria D');
+INSERT INTO tb_Motorista VALUES('10293718309', 'Milena', 'F', 26, NumTelefones('81988598743', '81986791152'), 'Categoria A');
+INSERT INTO tb_Motorista VALUES('14253647589', 'Michael', 'M', 21, NumTelefones('81988898323', '81966991112'), 'Categoria B');
+INSERT INTO tb_Motorista VALUES('10293813456', 'Michele', 'F', 50, NumTelefones('81998594333', '81986951182'), 'Categoria B');
+INSERT INTO tb_Motorista VALUES('09123564783', 'João', 'M', 53, NumTelefones('81958598353', '84986991122'), 'Categoria C');
+INSERT INTO tb_Motorista VALUES('12354676378', 'Luana', 'F', 38, NumTelefones('81998599333', '81983991112'), 'Categoria C');
+INSERT INTO tb_Motorista VALUES('12354639846', 'Pedro', 'M', 28, NumTelefones('81998508333', '81286991102'), 'Categoria A');
+INSERT INTO tb_Motorista VALUES('98757364789', 'Joana', 'F', 44, NumTelefones('81938598323', '81987991112'), 'Categoria A');
+INSERT INTO tb_Motorista VALUES('98756473678', 'Lucas', 'M', 39, NumTelefones('81958598313', '81987991132'), 'Categoria D');
+INSERT INTO tb_Motorista VALUES('64534256789', 'Alexandra', 'F', 39, NumTelefones('81998598313', '81986991782'), 'Categoria D');
 
 -- Povoamento Agente
 INSERT INTO tb_Agente (CPF_Funcionario, Nome, Sexo, Idade, lista_fones, Email) VALUES ('10987654321', 'Maria', 'F', 25, NumTelefones ('81998598343', '81986991192'),'maria@email.com');
