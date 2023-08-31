@@ -319,6 +319,18 @@ INSERT INTO tb_hospeda VALUES (
     'Hotel Transilvânia', 'Cristo Redentor', TO_DATE('2023-07-25','YYYY-MM-DD'),
     (SELECT REF(M) FROM tb_motorista M WHERE CPF_Funcionario = '87965433284')
 );
+INSERT INTO tb_hospeda VALUES (
+    (SELECT REF(C) FROM tb_cliente C WHERE CPF_Cliente = '12312312312'),
+    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 3),
+    'Hotel Boa Praia', 'Praia de Porto de Galinhas', TO_DATE('2023-10-07','YYYY-MM-DD'),
+    (SELECT REF(M) FROM tb_motorista M WHERE CPF_Funcionario = '19283746589')
+);
+INSERT INTO tb_hospeda VALUES (
+    (SELECT REF(C) FROM tb_cliente C WHERE CPF_Cliente = '55555555555'),
+    (SELECT REF(H) FROM tb_hotel H WHERE id_hotel = 2),
+    'Hotel Trivago', 'Centro Histórico', TO_DATE('2023-09-12','YYYY-MM-DD'),
+    (SELECT REF(M) FROM tb_motorista M WHERE CPF_Funcionario = '98756473678')
+);
 
 
 -- Tabela atraçaõ
